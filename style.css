@@ -125,3 +125,7 @@ h1 {
 .completed {
     background-color: transparent;
 }
+
+.sort {
+    width: 80%;
+}
