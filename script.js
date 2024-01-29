@@ -2,8 +2,12 @@ const todoListContainer = document.querySelector('.todo-list-container');
 const form = document.querySelector('#form');
 const newTodo = document.querySelector('#new-todo');
 const author = document.querySelector('#author');
+const addBtn = document.querySelector('#add-btn');
+const sort = document.querySelector('#sort');
 
 let todosList = [];
+
+let updatedTodoId;
 
 const listTodos = () => {
     todoListContainer.innerHTML = "";
@@ -62,7 +66,7 @@ const listTodos = () => {
 
 form.addEventListener("submit", (e) => {
   e.preventDefault();
-  if (newTodo.value !== "" && author.value !== "") {
+  if (newTodo.value !== "" && author.value !== "" && addBtn.innerText === 'Add') {
     let todo = {
       id: Date.now(),
       title: newTodo.value,
@@ -71,7 +75,23 @@ form.addEventListener("submit", (e) => {
       completed: false,
     };
     todosList.unshift(todo);
+  } else if (newTodo.value !== "" && author.value !== "" && addBtn.innerText === 'Update'){
+    todosList.forEach(x => {
+        if (x.id.toString() === updatedTodoId){
+            let todo = {
+              id: x.id,
+              title: newTodo.value,
+              author: author.value,
+              created: x.created,
+              completed: false,
+            };
+            let index = todosList.indexOf(x);
+            todosList.splice(index, 1, todo);
+            addBtn.innerText = 'Add';
+        }
+    })
   }
+  
   newTodo.value = "";
   author.value = "";
   listTodos();
@@ -79,32 +99,57 @@ form.addEventListener("submit", (e) => {
 
 const completeToggle = (todo) => {
     todosList.forEach(x => {
-        if (x.id == todo.id){
+        if (x.id.toString() === todo.id){
             x.completed = !x.completed
+            console.log(typeof(todo.id));
+            console.log(typeof(x.id));
         }
         listTodos();
     })
 }
 
 const deletTodo = (todo) => {
-    todosList = todosList.filter((x) => x.id != todo.id);
+    todosList = todosList.filter((x) => x.id.toString() !== todo.id);
     listTodos()
 }
 
 const editTodo = (todo) => {
-    newTodo.value = todo.querySelector('.todo-title').innerText;
-    author.value = todo.querySelector(".author-name").innerText;
-    if (newTodo.value !== '' && author.value !== ''){
-        deletTodo(todo)
-    }
+    todosList.forEach(x => {
+        if (x.id.toString() === todo.id){
+            newTodo.value = todo.querySelector(".todo-title").innerText;
+            author.value = todo.querySelector(".author-name").innerText;
+            addBtn.innerText = "Update";
+            updatedTodoId = x.id.toString();
+        }
+    })
 }
 
 const moveUpTodo = (todo) => {
-    todoListContainer.insertBefore(todo, todo.previousElementSibling);
+    todosList.forEach(x => {
+        if (x.id.toString() === todo.id){
+            let index = todosList.indexOf(x);
+            if (index !== 0){
+                let newIndex = index - 1;
+                todosList.splice(index, 1);
+                todosList.splice(newIndex, 0, x);
+            }
+        }
+        listTodos();
+    })
 }
 
 const moveDownTodo = (todo) => {
-    todoListContainer.insertBefore(todo.nextElementSibling, todo);
+    todosList.forEach((x) => {
+      if (x.id.toString() === todo.id) {
+        let index = todosList.indexOf(x);
+        if (index !== todosList.length - 1){
+            let newIndex = (index) + (2-1);
+            todosList.splice(index, 1);
+            todosList.splice(newIndex, 0, x);
+        }
+    }
+    listTodos();
+    });
 }
 
 
@@ -132,7 +177,12 @@ todoListContainer.addEventListener('click', e => {
     }
 })
 
-
-
-
-
+sort.addEventListener('change', e => {
+    e.preventDefault();
+    if (e.target.value === 'author'){
+        todosList.sort((a, b) => a.author.localeCompare(b.author));
+        listTodos();
+    } else if (e.target.value === 'date') {
+        listTodos();
+    }
+})

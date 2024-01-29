@@ -126,6 +126,19 @@ h1 {
     background-color: transparent;
 }
 
-.sort {
-    width: 80%;
+.sort-section {
+    display: flex;
+    justify-content: center;
+    margin: 2rem;
+}
+
+#sort {
+    width: 200px;
+    padding: .7rem;
+    font-size: 1.2rem;
+    background-color: #000000;
+    color: #ffffff;
+    outline: none;
+    border: none;
+    border-radius: .5rem;
 }
