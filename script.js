@@ -9,7 +9,7 @@ let todosList = [];
 
 let updatedTodoId;
 
-const listTodos = () => {
+const listTodos = (todosList) => {
     todoListContainer.innerHTML = "";
     todosList.forEach((todo) => {
         let todoHtml;
@@ -21,7 +21,7 @@ const listTodos = () => {
             </div>
             <div class="main-todo">
                 <div class="time-and-author">
-                    <div id="time">${todo.created}</div>
+                    <div id="time">${todo.created.toDateString()}</div>
                     <div class="author-name">${todo.author}</div>
                 </div>
                 <div class="todo-title">${todo.title}</div>
@@ -44,7 +44,7 @@ const listTodos = () => {
             </div>
             <div class="main-todo">
                 <div class="time-and-author">
-                    <div id="time">${todo.created}</div>
+                    <div id="time">${todo.created.toDateString()}</div>
                     <div class="author-name">${todo.author}</div>
                 </div>
                 <div class="todo-title">${todo.title}</div>
@@ -71,7 +71,7 @@ form.addEventListener("submit", (e) => {
       id: Date.now(),
       title: newTodo.value,
       author: author.value,
-      created: new Date().toDateString(),
+      created: new Date(),
       completed: false,
     };
     todosList.unshift(todo);
@@ -94,7 +94,7 @@ form.addEventListener("submit", (e) => {
   
   newTodo.value = "";
   author.value = "";
-  listTodos();
+  listTodos(todosList);
 });
 
 const completeToggle = (todo) => {
@@ -104,13 +104,13 @@ const completeToggle = (todo) => {
             console.log(typeof(todo.id));
             console.log(typeof(x.id));
         }
-        listTodos();
+        listTodos(todosList);
     })
 }
 
 const deletTodo = (todo) => {
     todosList = todosList.filter((x) => x.id.toString() !== todo.id);
-    listTodos()
+    listTodos(todosList);
 }
 
 const editTodo = (todo) => {
@@ -127,29 +127,24 @@ const editTodo = (todo) => {
 const moveUpTodo = (todo) => {
     todosList.forEach(x => {
         if (x.id.toString() === todo.id){
-            let index = todosList.indexOf(x);
+            const index = todosList.indexOf(x);
             if (index !== 0){
-                let newIndex = index - 1;
+                const newIndex = index - 1;
                 todosList.splice(index, 1);
                 todosList.splice(newIndex, 0, x);
             }
         }
-        listTodos();
+        listTodos(todosList);
     })
 }
 
 const moveDownTodo = (todo) => {
-    todosList.forEach((x) => {
-      if (x.id.toString() === todo.id) {
-        let index = todosList.indexOf(x);
-        if (index !== todosList.length - 1){
-            let newIndex = (index) + (2-1);
-            todosList.splice(index, 1);
-            todosList.splice(newIndex, 0, x);
-        }
+    const index = todosList.findIndex(x => x.id.toString() === todo.id);
+    if (index < todosList.length - 1) {
+      const newIndex = index + 1;
+        [todosList[index], todosList[newIndex]] = [todosList[newIndex], todosList[index]]
+      listTodos(todosList);
     }
-    listTodos();
-    });
 }
 
 
@@ -179,10 +174,15 @@ todoListContainer.addEventListener('click', e => {
 
 sort.addEventListener('change', e => {
     e.preventDefault();
+    let sortedArray= [];
     if (e.target.value === 'author'){
-        todosList.sort((a, b) => a.author.localeCompare(b.author));
-        listTodos();
+        sortedArray = todosList.slice().sort((a, b) => a.author.localeCompare(b.author));
+        listTodos(sortedArray);
     } else if (e.target.value === 'date') {
-        listTodos();
+        sortedArray = todosList.slice().sort((a, b) => b.created - a.created);
+        listTodos(sortedArray);
+    } else {
+        listTodos(todosList);
     }
 })
+
